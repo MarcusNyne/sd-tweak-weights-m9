@@ -10,7 +10,7 @@ from modules import images
 from modules.processing import Processed, process_images
 from modules.shared import state
 
-from scripts.m_prompt import *
+from scripts.m_prompt2 import *
 
 class Script(scripts.Script):
     def __init__(self):
@@ -41,9 +41,9 @@ class Script(scripts.Script):
                             with gr.Row():
                                 prompt_keywords = gr.Textbox(label="Prompt Keywords (,)", lines=1, elem_id=self.elem_id("prompt_keywords"))
                             with gr.Row():
-                                weight_range = gr.Number(label="Weight Range (+/-)", value=0.5, step=0.1, minimum=0, elem_id=self.elem_id("weight_range"))
-                                weight_max = gr.Number(label="Max Weight", value=1.9, step=0.1, minimum=0, elem_id=self.elem_id("weight_max"))
-                                lora_weight_range = gr.Number(label="Lora Weight Range (+/-)", value=0.2, minimum=0, step=0.1, elem_id=self.elem_id("lora_weight_range"))
+                                weight_range = gr.Number(label="Weight Range (+/-) ", value=0.5, step=0.1, minimum=0, elem_id=self.elem_id("weight_range"))
+                                weight_max = gr.Number(label="Max Weight ", value=1.9, step=0.1, minimum=0, elem_id=self.elem_id("weight_max"))
+                                lora_weight_range = gr.Number(label="Lora Weight Range (+/-) ", value=0.2, minimum=0, step=0.1, elem_id=self.elem_id("lora_weight_range"))
                             with gr.Row():
                                 cnt_variations = gr.Slider(label="Variations (count)", info="Number of variations to produce.  (count*batch) images are produced for each variation.", minimum=1, maximum=100, value=1, step=1, elem_id=self.elem_id("cnt_variations"))
                             with gr.Row():
@@ -65,7 +65,7 @@ class Script(scripts.Script):
 
                         p.seed = self._original_seed
 
-                        new_prompt = self.__generate_prompt(prompt_keywords, chk_variation_folders, cnt_variations, weight_range, weight_max, lora_weight_range)
+                        new_prompt = self.__generate_prompt(prompt_keywords, weight_range, weight_max, lora_weight_range)
 
                         copy_p = copy.copy(p)
                         copy_p.prompt = new_prompt
@@ -80,8 +80,8 @@ class Script(scripts.Script):
                         self._processed_infotexts += processed.infotexts
 
                 except:
-                    pass
-
+                    print("Tweak Weights [M9]: Exception during processing")
+ 
             self.__inside = False
             self.__print_variation_header(self._cnt_variations-1)
 
@@ -99,7 +99,7 @@ class Script(scripts.Script):
     def __generate_prompt(self, prompt_keywords, weight_range, weight_max, lora_weight_range):
         weight_range=self.__if_zero(weight_range)
         lora_weight_range=self.__if_zero(lora_weight_range)
-        prompt = mPrompt(inSeed=None, inPrompt=self._original_prompt)
+        prompt = mPrompt2(inSeed=None, inPrompt=self._original_prompt)
         prompt.TweakWeights(prompt_keywords, weight_range, lora_weight_range, weight_max)
         new_prompt = prompt.Generate()
         return new_prompt
@@ -123,11 +123,10 @@ class Script(scripts.Script):
 
         if chk_variation_folders is True:
             p.outpath_samples = self.__calc_outpath(self._cnt_variations-1)
-        p.prompt = self.__generate_prompt(prompt_keywords, chk_variation_folders, cnt_variations, weight_range, weight_max, lora_weight_range)
+        p.prompt = self.__generate_prompt(prompt_keywords, weight_range, weight_max, lora_weight_range)
         pass
 
     def postprocess(self, p, processed, is_enabled, prompt_keywords, chk_variation_folders, cnt_variations, weight_range, weight_max, lora_weight_range, markdown):
-
         if self.__inside or not is_enabled:
             return
 
@@ -136,5 +135,5 @@ class Script(scripts.Script):
         self._processed_infotexts += processed.infotexts
 
         processed.images = self._processed_images
-        processed._processed_all_prompts = self._processed_all_prompts
-        processed._processed_infotexts = self._processed_infotexts
+        processed.all_prompts = self._processed_all_prompts
+        processed.infotexts = self._processed_infotexts

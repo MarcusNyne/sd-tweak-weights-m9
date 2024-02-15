@@ -1,7 +1,7 @@
 import re
 import random
 
-class mPrompt:
+class mPrompt2:
 
     sLineSplit = 120
 
@@ -202,7 +202,7 @@ class mPrompt:
             if 'lora' in p:
                 tk = "<"+tk+">"
             if llen>0:
-                if llen+len(tk)>mPrompt.sLineSplit:
+                if llen+len(tk)>mPrompt2.sLineSplit:
                     self.p_output += "\n"
                     llen = 0
                 else:
