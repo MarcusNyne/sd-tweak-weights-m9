@@ -1,4 +1,5 @@
 div#m9-tweak-weights-accordion div.label-wrap.enabled
 {
-    background-color: rgb(184, 255, 137);
+    color: green;
+    background-color: rgb(224, 255, 221);
 }
