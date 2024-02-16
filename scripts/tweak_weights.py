@@ -24,8 +24,9 @@ class Script(scripts.Script):
         return scripts.AlwaysVisible
 
     def ui(self, is_img2img):
-        with gr.Group(elem_id="m9-tweak-weights"):
-            with gr.Accordion("Tweak Weights [M9]", open=False):
+
+        with gr.Group(elem_id="m9-tweak-weights-accordion-group"):
+            with gr.Accordion("Tweak Weights [M9]", open=False, elem_id="m9-tweak-weights-accordion"):
                 is_enabled = gr.Checkbox(
                     label="Tweak Weights enabled",
                     value=False,
