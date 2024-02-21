@@ -15,7 +15,7 @@ from scripts.m_prompt2 import *
 class Script(scripts.Script):
     def __init__(self):
         self.__inside = False
-        pass
+        self._prompt = None
 
     def title(self):
         return "Tweak Weights [M9]"
@@ -48,11 +48,12 @@ class Script(scripts.Script):
                             with gr.Row():
                                 cnt_variations = gr.Slider(label="Variations (count)", info="Number of variations to produce.  (count*batch) images are produced for each variation.", minimum=1, maximum=100, value=1, step=1, elem_id=self.elem_id("cnt_variations"))
                             with gr.Row():
-                                chk_variation_folders = gr.Checkbox(label="Create variation folders", infox="Causes an image subfolder to be created for a variation", value=False, elem_id=self.elem_id("chk_variation_folders"))
+                                chk_variation_folders = gr.Checkbox(label="Create variation folders", value=False, elem_id=self.elem_id("chk_variation_folders"))
+                                chk_info_textfile = gr.Checkbox(label="Create info text file", value=False, elem_id=self.elem_id("chk_info_textfile"))
 
-        return [is_enabled, prompt_keywords, chk_variation_folders, cnt_variations, weight_range, weight_max, lora_weight_range, markdown]
+        return [is_enabled, prompt_keywords, chk_variation_folders, cnt_variations, weight_range, weight_max, lora_weight_range, chk_info_textfile, markdown]
 
-    def process(self, p, is_enabled, prompt_keywords, chk_variation_folders, cnt_variations, weight_range, weight_max, lora_weight_range, markdown):
+    def process(self, p, is_enabled, prompt_keywords, chk_variation_folders, cnt_variations, weight_range, weight_max, lora_weight_range, chk_info_textfile, markdown):
 
         if not self.__inside and is_enabled:
 
@@ -80,6 +81,9 @@ class Script(scripts.Script):
                         self._processed_all_prompts += processed.all_prompts
                         self._processed_infotexts += processed.infotexts
 
+                        if chk_info_textfile is True:
+                            self.__write_info_file(var_ix, chk_variation_folders, processed.images[0].already_saved_as if len(processed.images)>0 else None)
+
                 except:
                     print("Tweak Weights [M9]: Exception during processing")
  
@@ -94,18 +98,32 @@ class Script(scripts.Script):
     def __print_variation_header(self, in_iteration):
         print(f"Variation {in_iteration+1} of {self._cnt_variations} [{self._outpath_root}].\n")
 
+    def __iter_folder(self, in_iteration):
+        return f"{self._outpath_root}-{in_iteration+1:02d}";
+
     def __calc_outpath(self, in_iteration):
-        return os.path.join (self._original_outpath, f"{self._outpath_root}-{in_iteration+1:02d}")
+        return os.path.join (self._original_outpath, self.__iter_folder(in_iteration))
+    
+    def __write_info_file(self, in_iteration, chk_variation_folders, in_image_file):
+        if self._prompt is not None:
+            filepath = None
+            if chk_variation_folders is True:
+                filepath = os.path.join (self.__calc_outpath(in_iteration), self.__iter_folder(in_iteration)+"-info.txt")
+            elif in_image_file is not None:
+                head, tail = os.path.split(in_image_file)
+                filepath = os.path.join (self._original_outpath, os.path.splitext(tail)[0]+"-info.txt")
+            if filepath is not None:
+                self._prompt.SavePrompt(filepath, inLog=True)
 
     def __generate_prompt(self, prompt_keywords, weight_range, weight_max, lora_weight_range):
         weight_range=self.__if_zero(weight_range)
         lora_weight_range=self.__if_zero(lora_weight_range)
-        prompt = mPrompt2(inSeed=None, inPrompt=self._original_prompt)
-        prompt.TweakWeights(prompt_keywords, weight_range, lora_weight_range, weight_max)
-        new_prompt = prompt.Generate()
+        self._prompt = mPrompt2(inSeed=None, inPrompt=self._original_prompt)
+        self._prompt.TweakWeights(prompt_keywords, weight_range, lora_weight_range, weight_max)
+        new_prompt = self._prompt.Generate()
         return new_prompt
-
-    def before_process(self, p, is_enabled, prompt_keywords, chk_variation_folders, cnt_variations, weight_range, weight_max, lora_weight_range, markdown):
+    
+    def before_process(self, p, is_enabled, prompt_keywords, chk_variation_folders, cnt_variations, weight_range, weight_max, lora_weight_range, chk_info_textfile, markdown):
 
         if self.__inside or not is_enabled:
             return
@@ -125,15 +143,19 @@ class Script(scripts.Script):
         if chk_variation_folders is True:
             p.outpath_samples = self.__calc_outpath(self._cnt_variations-1)
         p.prompt = self.__generate_prompt(prompt_keywords, weight_range, weight_max, lora_weight_range)
-        pass
+        self._lastprompt = self._prompt
 
-    def postprocess(self, p, processed, is_enabled, prompt_keywords, chk_variation_folders, cnt_variations, weight_range, weight_max, lora_weight_range, markdown):
+    def postprocess(self, p, processed, is_enabled, prompt_keywords, chk_variation_folders, cnt_variations, weight_range, weight_max, lora_weight_range, chk_info_textfile, markdown):
         if self.__inside or not is_enabled:
             return
 
         self._processed_images += processed.images
         self._processed_all_prompts += processed.all_prompts
         self._processed_infotexts += processed.infotexts
+
+        if chk_info_textfile is True:
+            self._prompt = self._lastprompt
+            self.__write_info_file(self._cnt_variations-1, chk_variation_folders, processed.images[0].already_saved_as if len(processed.images)>0 else None)
 
         processed.images = self._processed_images
         processed.all_prompts = self._processed_all_prompts
