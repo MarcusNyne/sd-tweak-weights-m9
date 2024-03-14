@@ -29,3 +29,26 @@ Only prompts that match one of the specified keywords will be modified.
    * **Create variation folders**: Create a new folder per variation
      * All images for a variation will be placed in the folder
      * Folders will be named YYMMDD-HHMM-NN, where NN is the variation number
+
+### Help and Feedback
+
+   * **Discord Server**
+     * https://discord.gg/trMfHcTcsG
+
+### m9 Prompts Catalog
+
+   * **Scramble Prompts for Stable Diffusion**
+     * Works with Automatic1111
+     * Reorder, remove, modify weights of prompts
+     * https://github.com/MarcusNyne/sd-scramble-prompts-m9
+
+   * **Tweak Weights for Stable Diffusion**
+     * Works with Automatic1111
+     * Modify prompt weights using keywords
+     * https://github.com/MarcusNyne/sd-tweak-weights-m9
+
+   * **m9 Prompts for ComfyUI**
+     * Works with ComfyUI
+     * Includes nodes for Scramble Prompts and Tweak Weights
+     * https://github.com/MarcusNyne/m9-prompts-comfyui
+
