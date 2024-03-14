@@ -30,12 +30,12 @@ Only prompts that match one of the specified keywords will be modified.
      * All images for a variation will be placed in the folder
      * Folders will be named YYMMDD-HHMM-NN, where NN is the variation number
 
-### Help and Feedback
+## Help and Feedback
 
    * **Discord Server**
      * https://discord.gg/trMfHcTcsG
 
-### m9 Prompts Catalog
+## m9 Prompts Catalog
 
    * **Scramble Prompts for Stable Diffusion**
      * Works with Automatic1111
@@ -51,4 +51,3 @@ Only prompts that match one of the specified keywords will be modified.
      * Works with ComfyUI
      * Includes nodes for Scramble Prompts and Tweak Weights
      * https://github.com/MarcusNyne/m9-prompts-comfyui
-
