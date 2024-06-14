@@ -10,7 +10,7 @@ from modules import images
 from modules.processing import Processed, process_images
 from modules.shared import state
 
-from scripts.m_prompt2 import *
+from m9_tw_libs.m_prompt import *
 
 class Script(scripts.Script):
     def __init__(self):
@@ -118,7 +118,7 @@ class Script(scripts.Script):
     def __generate_prompt(self, prompt_keywords, weight_range, weight_max, lora_weight_range):
         weight_range=self.__if_zero(weight_range)
         lora_weight_range=self.__if_zero(lora_weight_range)
-        self._prompt = mPrompt2(inSeed=None, inPrompt=self._original_prompt)
+        self._prompt = mPrompt(inSeed=None, inPrompt=self._original_prompt)
         self._prompt.TweakWeights(prompt_keywords, weight_range, lora_weight_range, weight_max)
         new_prompt = self._prompt.Generate()
         return new_prompt
