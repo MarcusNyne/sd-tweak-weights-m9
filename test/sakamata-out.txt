@@ -1,4 +1,4 @@
-beautiful woman:1.12,<lora:Chloe Lolita:0.7>,sakamata chloe,grey hair,black hair,heart on chest,breasts
+beautiful woman:1.12,<lora:chloe_lora-last:0.7>,sakamata chloe,grey hair,black hair,heart on chest
 <lora:more_details:0.645>,red eyes,asian,ashes to ashes,(((dark presence))),smoke,thick broad brush strokes,dark ink
 epic lighting digital painting,sharp focus,octane render,8 k,hyper detailed.,beautiful woman,Black ink flow,8k resolution
 photorealistic masterpiece,intricately detailed fluid gouache painting:0.122,professional photography,natural lighting:1.14
