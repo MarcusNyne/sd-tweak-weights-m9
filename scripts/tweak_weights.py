@@ -5,6 +5,11 @@ from datetime import datetime
 from modules.processing import fix_seed
 import modules.scripts as scripts
 import gradio as gr
+from modules.shared import opts
+if hasattr(opts, 'hypertile_enable_unet'):  # webui >= 1.7
+    from modules.ui_components import InputAccordion
+else:
+    InputAccordion = None
 
 from modules import images
 from modules.processing import Processed, process_images
@@ -25,31 +30,35 @@ class Script(scripts.Script):
 
     def ui(self, is_img2img):
 
-        with gr.Group(elem_id="m9-tweak-weights-accordion-group"):
-            with gr.Accordion("Tweak Weights [M9]", open=False, elem_id="m9-tweak-weights-accordion"):
-                is_enabled = gr.Checkbox(
-                    label="Tweak Weights enabled",
-                    value=False,
-                    interactive=True,
-                    elem_id="m9-tweak-weights-enabled",
-                )
+        tab = 't2i'  if not is_img2img else 'i2i'
+        m9_label = 'Tweak Weights [M9]'
+        m9_accordian = "m9-tweak-weights-accordion"
+        m9_enabled = "m9-tweak-weights-enabled"
+        with (
+            InputAccordion(False, label=m9_label, elem_id=f'{m9_accordian}-{tab}') if InputAccordion
+            else gr.Accordion(m9_label, open=False, elem_id=f'{m9_accordian}-{tab}')
+            as is_enabled
+        ):
+            if not InputAccordion:
+                with gr.Row(variant='compact'):
+                    is_enabled = gr.Checkbox(label='Enable Tweak Weights', value=False, interactive=True, elem_id=f'{m9_enabled}-{tab}')
 
-                with gr.Group(visible=True):
-                    with gr.Row():
-                        with gr.Column(scale=19):
-                            with gr.Row():
-                                markdown = gr.Markdown("Prompt weights containing the specified keywords will be modified.  The entire count/batch will be run against a prompt variation before running the next one.")
-                            with gr.Row():
-                                prompt_keywords = gr.Textbox(label="Prompt Keywords (,)", lines=1, elem_id=self.elem_id("prompt_keywords"))
-                            with gr.Row():
-                                weight_range = gr.Number(label="Weight Range (+/-) ", value=0.5, step=0.1, minimum=0, elem_id=self.elem_id("weight_range"))
-                                weight_max = gr.Number(label="Max Weight ", value=1.9, step=0.1, minimum=0, elem_id=self.elem_id("weight_max"))
-                                lora_weight_range = gr.Number(label="Lora Weight Range (+/-) ", value=0.2, minimum=0, step=0.1, elem_id=self.elem_id("lora_weight_range"))
-                            with gr.Row():
-                                cnt_variations = gr.Slider(label="Variations (count)", info="Number of variations to produce.  (count*batch) images are produced for each variation.", minimum=1, maximum=100, value=1, step=1, elem_id=self.elem_id("cnt_variations"))
-                            with gr.Row():
-                                chk_variation_folders = gr.Checkbox(label="Create variation folders", value=False, elem_id=self.elem_id("chk_variation_folders"))
-                                chk_info_textfile = gr.Checkbox(label="Create info text file", value=False, elem_id=self.elem_id("chk_info_textfile"))
+            with gr.Group(visible=True):
+                with gr.Row():
+                    with gr.Column(scale=19):
+                        with gr.Row():
+                            markdown = gr.Markdown("Prompt weights containing the specified keywords will be modified.  The entire count/batch will be run against a prompt variation before running the next one.")
+                        with gr.Row():
+                            prompt_keywords = gr.Textbox(label="Prompt Keywords (,)", lines=1, elem_id=self.elem_id("prompt_keywords"))
+                        with gr.Row():
+                            weight_range = gr.Number(label="Weight Range (+/-) ", value=0.5, step=0.1, minimum=0, elem_id=self.elem_id("weight_range"))
+                            weight_max = gr.Number(label="Max Weight ", value=1.9, step=0.1, minimum=0, elem_id=self.elem_id("weight_max"))
+                            lora_weight_range = gr.Number(label="Lora Weight Range (+/-) ", value=0.2, minimum=0, step=0.1, elem_id=self.elem_id("lora_weight_range"))
+                        with gr.Row():
+                            cnt_variations = gr.Slider(label="Variations (count)", info="Number of variations to produce.  (count*batch) images are produced for each variation.", minimum=1, maximum=100, value=1, step=1, elem_id=self.elem_id("cnt_variations"))
+                        with gr.Row():
+                            chk_variation_folders = gr.Checkbox(label="Create variation folders", value=False, elem_id=self.elem_id("chk_variation_folders"))
+                            chk_info_textfile = gr.Checkbox(label="Create info text file", value=False, elem_id=self.elem_id("chk_info_textfile"))
 
         return [is_enabled, prompt_keywords, chk_variation_folders, cnt_variations, weight_range, weight_max, lora_weight_range, chk_info_textfile, markdown]
 
