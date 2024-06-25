@@ -1,7 +1,7 @@
 import re
 import random
 
-class mPrompt2:
+class mPrompt:
 
     sLineSplit = 120
 
@@ -159,7 +159,13 @@ class mPrompt2:
             self.__log_entry(self.p_prompts[p]['token'], "Weight changed from {before:0.2f} to {after:0.2f}".format(before=weight, after=self.p_prompts[p]['weight']))
 
     def TweakWeights(self, inKeywords:str, inRange:float, inLoraRange:float, inMaxOutput:float=None):
-        self.__log_header("Weights changed for: {keywords} ({range:0.1f}/{lorarange:0.1f})".format(keywords=inKeywords, range=inRange, lorarange=inLoraRange))
+        prange = inRange
+        if prange is None:
+            prange = 0.0
+        plorarange = inLoraRange
+        if plorarange is None:
+            plorarange = 0.0
+        self.__log_header("Weights changed for: {keywords} ({range:0.1f}/{lorarange:0.1f})".format(keywords=inKeywords, range=prange, lorarange=plorarange))
         keywords = []
         for kw in inKeywords.split(','):
             kw = kw.lower().strip()
@@ -202,7 +208,7 @@ class mPrompt2:
         return newlist
 
     def __modify_weight(self, inWeight:float, inRange:float, inMinInput:float=None, inMaxInput:float=None, inMinOutput:float=None, inMaxOutput:float=None):
-        if (inMinInput is not None and inWeight<inMinInput) or (inMaxInput is not None and inWeight>inMaxInput):
+        if (inMinInput is not None and inWeight<inMinInput) or (inMaxInput is not None and inWeight>inMaxInput) or inRange is None:
             return inWeight
 
         random.seed(self.seed)
@@ -295,7 +301,7 @@ class mPrompt2:
             if 'lora' in p:
                 tk = "<"+tk+">"
             if llen>0:
-                if llen+len(tk)>mPrompt2.sLineSplit:
+                if llen+len(tk)>mPrompt.sLineSplit:
                     self.p_output += "\n"
                     llen = 0
                 else:

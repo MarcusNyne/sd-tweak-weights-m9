@@ -1,6 +1,6 @@
 titles = {
   ...titles,
-  "Tweak Weights enabled": "Disable tweak weights by unchecking this box.",
+  "Enable Tweak Weights": "Disable Tweak Weights by unchecking this box.",
   "Prompt Keywords (,)": "Prompts containing one of these keywords will be modified. Not case sensitive.",
   "Weight Range (+/-) ": "Range for applying a weight change.  Weights will not be modified below 0.  Not applied to Loras.",
   "Max Weight ": "Weights will not be modified above this value.",
